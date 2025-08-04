@@ -5,6 +5,7 @@ import AuthProvider from "contexts/Auth";
 import ReVisionLogo from "assets/ReVision.gif";
 import AppRoutes from "./Routes";
 import AppLayout from "./AppLayout";
+import PWAInstaller from "components/PWAInstaller";
 
 const SplashWrapper = styled.div`
   width: 100%;
@@ -53,6 +54,7 @@ const App = () => {
         <AppLayout>
           <AppRoutes />
         </AppLayout>
+        <PWAInstaller />
       </AuthProvider>
     </Router>
   );

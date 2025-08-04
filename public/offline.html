@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReVision - Offline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Sen', sans-serif;
+            background: linear-gradient(135deg, #f1efe7, #e8e6de);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #445069;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 40rem;
+            padding: 2rem;
+        }
+        
+        .icon {
+            font-size: 6rem;
+            margin-bottom: 2rem;
+            opacity: 0.6;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #111, #445069);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        p {
+            font-size: 1.6rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+        
+        .retry-btn {
+            padding: 1rem 2rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #111 0%, #445069 100%);
+            border: none;
+            border-radius: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .retry-btn:hover {
+            transform: translateY(-0.2rem);
+            box-shadow: 0 0.8rem 2rem rgba(68, 80, 105, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📡</div>
+        <h1>You're Offline</h1>
+        <p>It looks like you're not connected to the internet. Some features may not be available until you reconnect.</p>
+        <button class="retry-btn" onclick="window.location.reload()">
+            Try Again
+        </button>
+    </div>
+</body>
+</html>

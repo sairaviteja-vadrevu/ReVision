@@ -53,25 +53,59 @@ const TemplateItem = styled.div`
 const TemplateImageSkeleton = styled.div`
   width: 100%;
   height: 15rem;
-  background-color: #e0e0e0;
+  background: linear-gradient(135deg, #e0e0e0, #f0f0f0);
   border-radius: 0.8rem;
   box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  
   &:hover {
-    background-color: #d0d0d0;
+    background: linear-gradient(135deg, #d0d0d0, #e0e0e0);
+    transform: translateY(-0.2rem);
+    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.15);
   }
-  animation: pulse 1.5s infinite ease-in-out;
-  @keyframes pulse {
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
     0% {
-      background-color: #e0e0e0;
-    }
-    50% {
-      background-color: #d0d0d0;
+      left: -100%;
     }
     100% {
-      background-color: #e0e0e0;
+      left: 100%;
     }
   }
+`;
+
+const TemplateInitials = styled.div`
+  font-size: 3rem;
+  font-weight: 700;
+  color: #445069;
+  text-transform: uppercase;
+  letter-spacing: 0.2rem;
+  z-index: 1;
+  background: linear-gradient(135deg, #111, #445069);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 `;
 
 const TemplateThemeHeader = styled.h5`
@@ -114,6 +148,16 @@ const BannerSubtitle = styled.p`
 const Home = () => {
   const navigate = useNavigate();
 
+  const getInitials = (name) => {
+    if (!name) return "T";
+    
+    return name
+      .split(" ")
+      .map(word => word.charAt(0))
+      .join("")
+      .substring(0, 2);
+  };
+
   const handleTemplateClick = (template, theme) => {
     navigate(
       `/${theme?.toLowerCase()}/${template?.name
@@ -146,9 +190,11 @@ const Home = () => {
                     key={index}
                     onClick={() => handleTemplateClick(template, key)}
                   >
-                    <TemplateImageSkeleton />
-                    {/* Placeholder for template image */}
-                    {/* In a real application, you would replace this with an actual image */}
+                    <TemplateImageSkeleton>
+                      <TemplateInitials>
+                        {getInitials(template?.name)}
+                      </TemplateInitials>
+                    </TemplateImageSkeleton>
                     <TemplateThemeHeader>{template?.name}</TemplateThemeHeader>
                   </TemplateItem>
                 );

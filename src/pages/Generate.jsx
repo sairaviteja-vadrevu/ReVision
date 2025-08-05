@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const GenerateContainer = styled.div`
@@ -450,6 +450,7 @@ const Generate = () => {
   const location = useLocation();
   const { state } = location;
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const [inputMode, setInputMode] = useState("upload"); // "upload" or "url"
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -463,6 +464,10 @@ const Generate = () => {
   const [error, setError] = useState(null);
   const [showToast, setShowToast] = useState(false);
   const [generationResult, setGenerationResult] = useState(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const aspectRatios = [
     { label: "9:16", value: "9:16" },
@@ -532,7 +537,7 @@ const Generate = () => {
     const url = e.target.value;
     console.log("handleURLChange - input value:", url);
     console.log("handleURLChange - current imageURL:", imageURL);
-    
+
     setImageURL(url);
 
     // Clear previous preview when URL changes
@@ -554,23 +559,26 @@ const Generate = () => {
 
   const handleURLPaste = (e) => {
     e.preventDefault(); // Prevent default paste behavior
-    const pastedText = e.clipboardData.getData('text').trim();
+    const pastedText = e.clipboardData.getData("text").trim();
     console.log("handleURLPaste - pasted text:", pastedText);
     console.log("handleURLPaste - current imageURL:", imageURL);
-    
+
     // Check if pasted text looks like an image URL
     const imageUrlPattern = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
     const generalUrlPattern = /^https?:\/\/.+/i;
-    
-    if (imageUrlPattern.test(pastedText) || generalUrlPattern.test(pastedText)) {
+
+    if (
+      imageUrlPattern.test(pastedText) ||
+      generalUrlPattern.test(pastedText)
+    ) {
       console.log("handleURLPaste - setting new URL:", pastedText);
       setImageURL(pastedText);
-      
+
       // Clear previous preview
       if (urlPreviewImage) {
         setUrlPreviewImage(null);
       }
-      
+
       // Immediately validate the pasted URL for instant preview
       setTimeout(() => {
         console.log("handleURLPaste - validating URL:", pastedText);
@@ -588,7 +596,9 @@ const Generate = () => {
       const urlPattern = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
       if (!urlPattern.test(url)) {
         // Try to load the image anyway, as some URLs might not have extensions
-        console.log("validateImageURL - URL doesn't match pattern, trying to load anyway");
+        console.log(
+          "validateImageURL - URL doesn't match pattern, trying to load anyway"
+        );
         await loadImageFromURL(url);
       } else {
         console.log("validateImageURL - URL matches pattern, loading");
@@ -679,18 +689,18 @@ const Generate = () => {
     try {
       // Prepare input image based on mode
       let inputImage = inputMode === "upload" ? imageBase64 : imageURL;
-      
+
       // Safety check: ensure URL isn't duplicated
       if (inputMode === "url" && inputImage) {
         // Remove any duplicate URLs that might be concatenated
-        const urlParts = inputImage.split('http');
+        const urlParts = inputImage.split("http");
         if (urlParts.length > 2) {
           // Take the first complete URL
-          inputImage = 'http' + urlParts[1];
+          inputImage = "http" + urlParts[1];
           console.log("Fixed duplicated URL:", inputImage);
         }
       }
-      
+
       // Debug log to check what's being sent
       console.log("Sending to API:", {
         prompt: state.template.prompt,
@@ -777,6 +787,7 @@ const Generate = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+    navigate("/");
   };
 
   const canGenerate = () => {

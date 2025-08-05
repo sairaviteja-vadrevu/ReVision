@@ -41,7 +41,8 @@ const TemplatesSection = styled.div`
 
 const TemplateItem = styled.div`
   width: 100%;
-  max-width: 33rem;
+  max-width: 20rem;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -55,22 +56,22 @@ const TemplateImageSkeleton = styled.div`
   height: 15rem;
   background: linear-gradient(135deg, #e0e0e0, #f0f0f0);
   border-radius: 0.8rem;
-  box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1);
+  box-shadow: 0.5rem 0.5rem rgba(0, 0, 0, 0.5);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
-  
+
   &:hover {
     background: linear-gradient(135deg, #d0d0d0, #e0e0e0);
     transform: translateY(-0.2rem);
     box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.15);
   }
-  
+
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: -100%;
@@ -84,7 +85,7 @@ const TemplateImageSkeleton = styled.div`
     );
     animation: shimmer 2s infinite;
   }
-  
+
   @keyframes shimmer {
     0% {
       left: -100%;
@@ -106,6 +107,14 @@ const TemplateInitials = styled.div`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+`;
+
+const TemplateLogo = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.8rem;
+  // z-index: 1;
 `;
 
 const TemplateThemeHeader = styled.h5`
@@ -150,10 +159,10 @@ const Home = () => {
 
   const getInitials = (name) => {
     if (!name) return "T";
-    
+
     return name
       .split(" ")
-      .map(word => word.charAt(0))
+      .map((word) => word.charAt(0))
       .join("")
       .substring(0, 2);
   };
@@ -191,9 +200,13 @@ const Home = () => {
                     onClick={() => handleTemplateClick(template, key)}
                   >
                     <TemplateImageSkeleton>
-                      <TemplateInitials>
-                        {getInitials(template?.name)}
-                      </TemplateInitials>
+                      {template?.logo ? (
+                        <TemplateLogo src={template.logo} alt={template.name} />
+                      ) : (
+                        <TemplateInitials>
+                          {getInitials(template?.name)}
+                        </TemplateInitials>
+                      )}
                     </TemplateImageSkeleton>
                     <TemplateThemeHeader>{template?.name}</TemplateThemeHeader>
                   </TemplateItem>

@@ -21,12 +21,6 @@ export const TEMPLATES = {
       model: "DreamShaper v8",
     },
     {
-      name: "Avatar Na'vi",
-      prompt:
-        "Transform this person into a Na'vi from the movie Avatar with blue skin, bioluminescent patterns, and set in the lush forests of Pandora. Use the uploaded image as a strict facial reference. Preserve the original facial structure, expression, emotion, eye features, and bone structure. Apply blue skin texture and fantasy elements only to the body and background. Face should remain a 1:1 match to the original identity while blending into the Na'vi aesthetic. High-resolution cinematic render.",
-      model: "PhotoMaker",
-    },
-    {
       name: "Action Movie Star",
       prompt:
         "Make this person look like a 90s action movie star with leather jacket, explosions in the background, and gritty urban lighting. Preserve exact facial features from the uploaded image \u2014 expression, gaze, skin texture, and emotion must be identical. Stylize only the background and clothing for cinematic intensity.",

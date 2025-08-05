@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
-import { updateSW } from "../main.jsx";
+import { updateSW } from "../utils/pwa.js";
 
 const InstallPrompt = styled.div`
   position: fixed;

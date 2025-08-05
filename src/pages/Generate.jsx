@@ -42,6 +42,105 @@ const UploadSection = styled.div`
   gap: 2rem;
 `;
 
+const InputToggle = styled.div`
+  display: flex;
+  background: rgba(68, 80, 105, 0.1);
+  border-radius: 1rem;
+  padding: 0.4rem;
+  margin-bottom: 2rem;
+`;
+
+const ToggleOption = styled.button`
+  flex: 1;
+  padding: 1rem 2rem;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: ${(props) => (props.active ? "white" : "#445069")};
+  background: ${(props) =>
+    props.active
+      ? "linear-gradient(135deg, #111 0%, #445069 100%)"
+      : "transparent"};
+  border: none;
+  border-radius: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Sen", sans-serif;
+
+  &:hover {
+    background: ${(props) =>
+      props.active
+        ? "linear-gradient(135deg, #111 0%, #445069 100%)"
+        : "rgba(68, 80, 105, 0.1)"};
+  }
+`;
+
+const URLInputSection = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+const URLInput = styled.input`
+  padding: 1.5rem;
+  font-size: 1.4rem;
+  border: 0.2rem solid #e0e0e0;
+  border-radius: 1rem;
+  font-family: "Sen", sans-serif;
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #445069;
+    box-shadow: 0 0 0 0.3rem rgba(68, 80, 105, 0.1);
+  }
+
+  &::placeholder {
+    color: #888;
+  }
+`;
+
+const URLPreviewSection = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+`;
+
+const URLPreviewImage = styled.img`
+  max-width: 100%;
+  max-height: 30rem;
+  border-radius: 1rem;
+  box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.15);
+`;
+
+const URLInfo = styled.div`
+  display: flex;
+  gap: 2rem;
+  font-size: 1.3rem;
+  color: #666;
+  flex-wrap: wrap;
+  justify-content: center;
+`;
+
+const ClearURLButton = styled.button`
+  padding: 0.8rem 1.5rem;
+  font-size: 1.3rem;
+  color: #ff4757;
+  background: transparent;
+  border: 0.1rem solid #ff4757;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Sen", sans-serif;
+
+  &:hover {
+    background: #ff4757;
+    color: white;
+  }
+`;
+
 const UploadArea = styled.div`
   width: 100%;
   min-height: 20rem;
@@ -146,7 +245,7 @@ const SectionTitle = styled.h3`
 
 const AspectRatioGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
   gap: 1rem;
 `;
 
@@ -199,7 +298,7 @@ const GenerateButtonSection = styled.div`
 `;
 
 const GenerateButton = styled.button`
-  padding: 1.5rem 4rem;
+  padding: 0 2rem;
   font-size: 1.6rem;
   font-weight: 600;
   color: white;
@@ -352,8 +451,11 @@ const Generate = () => {
   const { state } = location;
   const fileInputRef = useRef(null);
 
+  const [inputMode, setInputMode] = useState("upload"); // "upload" or "url"
   const [uploadedImage, setUploadedImage] = useState(null);
   const [imageBase64, setImageBase64] = useState("");
+  const [imageURL, setImageURL] = useState("");
+  const [urlPreviewImage, setUrlPreviewImage] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedAspectRatio, setSelectedAspectRatio] = useState("1:1");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -426,6 +528,129 @@ const Generate = () => {
     }
   };
 
+  const handleURLChange = (e) => {
+    const url = e.target.value;
+    console.log("handleURLChange - input value:", url);
+    console.log("handleURLChange - current imageURL:", imageURL);
+    
+    setImageURL(url);
+
+    // Clear previous preview when URL changes
+    if (urlPreviewImage) {
+      setUrlPreviewImage(null);
+    }
+
+    // Debounce URL validation
+    if (url.trim()) {
+      setTimeout(() => {
+        if (url === imageURL) {
+          // Only proceed if URL hasn't changed
+          console.log("handleURLChange - validating URL:", url);
+          validateImageURL(url);
+        }
+      }, 500);
+    }
+  };
+
+  const handleURLPaste = (e) => {
+    e.preventDefault(); // Prevent default paste behavior
+    const pastedText = e.clipboardData.getData('text').trim();
+    console.log("handleURLPaste - pasted text:", pastedText);
+    console.log("handleURLPaste - current imageURL:", imageURL);
+    
+    // Check if pasted text looks like an image URL
+    const imageUrlPattern = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
+    const generalUrlPattern = /^https?:\/\/.+/i;
+    
+    if (imageUrlPattern.test(pastedText) || generalUrlPattern.test(pastedText)) {
+      console.log("handleURLPaste - setting new URL:", pastedText);
+      setImageURL(pastedText);
+      
+      // Clear previous preview
+      if (urlPreviewImage) {
+        setUrlPreviewImage(null);
+      }
+      
+      // Immediately validate the pasted URL for instant preview
+      setTimeout(() => {
+        console.log("handleURLPaste - validating URL:", pastedText);
+        validateImageURL(pastedText);
+      }, 100);
+    }
+  };
+
+  const validateImageURL = async (url) => {
+    console.log("validateImageURL - validating:", url);
+    try {
+      setError(null);
+
+      // Basic URL validation
+      const urlPattern = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
+      if (!urlPattern.test(url)) {
+        // Try to load the image anyway, as some URLs might not have extensions
+        console.log("validateImageURL - URL doesn't match pattern, trying to load anyway");
+        await loadImageFromURL(url);
+      } else {
+        console.log("validateImageURL - URL matches pattern, loading");
+        await loadImageFromURL(url);
+      }
+    } catch (error) {
+      console.error("URL validation error:", error);
+      setError("Invalid image URL or unable to load image");
+      setUrlPreviewImage(null);
+    }
+  };
+
+  const loadImageFromURL = (url) => {
+    console.log("loadImageFromURL - loading:", url);
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+
+      img.onload = () => {
+        console.log("loadImageFromURL - image loaded successfully");
+        setUrlPreviewImage({
+          url: url,
+          width: img.naturalWidth,
+          height: img.naturalHeight,
+          size: "Unknown",
+        });
+        setError(null);
+        resolve(img);
+      };
+
+      img.onerror = () => {
+        console.log("loadImageFromURL - image failed to load");
+        reject(new Error("Failed to load image from URL"));
+      };
+
+      img.src = url;
+    });
+  };
+
+  const handleClearURL = () => {
+    setImageURL("");
+    setUrlPreviewImage(null);
+    setError(null);
+  };
+
+  const handleModeToggle = (mode) => {
+    setInputMode(mode);
+    setError(null);
+
+    // Clear the other input when switching modes
+    if (mode === "upload") {
+      setImageURL("");
+      setUrlPreviewImage(null);
+    } else {
+      setUploadedImage(null);
+      setImageBase64("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -435,8 +660,14 @@ const Generate = () => {
   };
 
   const generateImage = async () => {
-    if (!imageBase64 || !state?.template?.prompt) {
-      setError("Please upload an image and ensure template data is available");
+    // Validation based on input mode
+    const hasUploadedImage = inputMode === "upload" && imageBase64;
+    const hasValidURL = inputMode === "url" && imageURL && urlPreviewImage;
+
+    if ((!hasUploadedImage && !hasValidURL) || !state?.template?.prompt) {
+      setError(
+        "Please provide an image (upload or URL) and ensure template data is available"
+      );
       return;
     }
 
@@ -446,6 +677,29 @@ const Generate = () => {
     setGenerationResult(null);
 
     try {
+      // Prepare input image based on mode
+      let inputImage = inputMode === "upload" ? imageBase64 : imageURL;
+      
+      // Safety check: ensure URL isn't duplicated
+      if (inputMode === "url" && inputImage) {
+        // Remove any duplicate URLs that might be concatenated
+        const urlParts = inputImage.split('http');
+        if (urlParts.length > 2) {
+          // Take the first complete URL
+          inputImage = 'http' + urlParts[1];
+          console.log("Fixed duplicated URL:", inputImage);
+        }
+      }
+      
+      // Debug log to check what's being sent
+      console.log("Sending to API:", {
+        prompt: state.template.prompt,
+        input_image: inputImage,
+        output_format: "jpg",
+        aspect_ratio: selectedAspectRatio,
+        inputMode,
+      });
+
       const response = await fetch(
         "https://fastapi-app-production-6492.up.railway.app/api/v1/generate",
         {
@@ -455,7 +709,7 @@ const Generate = () => {
           },
           body: JSON.stringify({
             prompt: state.template.prompt,
-            input_image: imageBase64,
+            input_image: inputImage,
             output_format: "jpg",
             aspect_ratio: selectedAspectRatio,
           }),
@@ -516,14 +770,25 @@ const Generate = () => {
     setError(null);
     setUploadedImage(null);
     setImageBase64("");
+    setImageURL("");
+    setUrlPreviewImage(null);
+    setInputMode("upload");
     setSelectedAspectRatio("1:1");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const canGenerate =
-    uploadedImage && imageBase64 && state?.template?.prompt && !isGenerating;
+  const canGenerate = () => {
+    const hasUploadedImage =
+      inputMode === "upload" && uploadedImage && imageBase64;
+    const hasValidURL = inputMode === "url" && imageURL && urlPreviewImage;
+    return (
+      (hasUploadedImage || hasValidURL) &&
+      state?.template?.prompt &&
+      !isGenerating
+    );
+  };
 
   console.log("Generate page state:", state);
   console.log("Base64:", imageBase64);
@@ -534,47 +799,94 @@ const Generate = () => {
       <PageHeader>
         <PageTitle>Generate Image</PageTitle>
         <PageSubtitle>
-          {generatedImage 
-            ? "Your AI-generated image is ready!" 
-            : "Upload your image and select aspect ratio"
-          }
+          {generatedImage
+            ? "Your AI-generated image is ready!"
+            : "Provide your image via upload or URL and select aspect ratio"}
         </PageSubtitle>
       </PageHeader>
 
       {!generatedImage && (
         <>
           <UploadSection>
-            {!uploadedImage ? (
-              <UploadArea
-                isDragOver={isDragOver}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
+            <InputToggle>
+              <ToggleOption
+                active={inputMode === "upload"}
+                onClick={() => handleModeToggle("upload")}
               >
-                <HiddenFileInput
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-                <UploadIcon>📁</UploadIcon>
-                <UploadText>
-                  <UploadTitle>Upload Image</UploadTitle>
-                  <UploadSubtext>Drag and drop or click to select</UploadSubtext>
-                </UploadText>
-              </UploadArea>
+                📁 Upload Image
+              </ToggleOption>
+              <ToggleOption
+                active={inputMode === "url"}
+                onClick={() => handleModeToggle("url")}
+              >
+                🔗 Image URL
+              </ToggleOption>
+            </InputToggle>
+
+            {inputMode === "upload" ? (
+              <>
+                {!uploadedImage ? (
+                  <UploadArea
+                    isDragOver={isDragOver}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <HiddenFileInput
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                    <UploadIcon>📁</UploadIcon>
+                    <UploadText>
+                      <UploadTitle>Upload Image</UploadTitle>
+                      <UploadSubtext>
+                        Drag and drop or click to select
+                      </UploadSubtext>
+                    </UploadText>
+                  </UploadArea>
+                ) : (
+                  <ImagePreview>
+                    <PreviewImage src={uploadedImage.preview} alt="Preview" />
+                    <ImageInfo>
+                      <span>{uploadedImage.name}</span>
+                      <span>{formatFileSize(uploadedImage.size)}</span>
+                    </ImageInfo>
+                    <RemoveButton onClick={handleRemoveImage}>
+                      Remove Image
+                    </RemoveButton>
+                  </ImagePreview>
+                )}
+              </>
             ) : (
-              <ImagePreview>
-                <PreviewImage src={uploadedImage.preview} alt="Preview" />
-                <ImageInfo>
-                  <span>{uploadedImage.name}</span>
-                  <span>{formatFileSize(uploadedImage.size)}</span>
-                </ImageInfo>
-                <RemoveButton onClick={handleRemoveImage}>
-                  Remove Image
-                </RemoveButton>
-              </ImagePreview>
+              <URLInputSection>
+                <URLInput
+                  type="url"
+                  value={imageURL}
+                  onChange={handleURLChange}
+                  onPaste={handleURLPaste}
+                  placeholder="Paste image URL here (e.g., https://example.com/image.jpg)"
+                />
+                {urlPreviewImage && (
+                  <URLPreviewSection>
+                    <URLPreviewImage
+                      src={urlPreviewImage.url}
+                      alt="URL Preview"
+                    />
+                    <URLInfo>
+                      <span>
+                        Size: {urlPreviewImage.width} × {urlPreviewImage.height}
+                      </span>
+                      <span>Source: URL</span>
+                    </URLInfo>
+                    <ClearURLButton onClick={handleClearURL}>
+                      Clear URL
+                    </ClearURLButton>
+                  </URLPreviewSection>
+                )}
+              </URLInputSection>
             )}
           </UploadSection>
 
@@ -587,7 +899,7 @@ const Generate = () => {
                   isSelected={selectedAspectRatio === ratio.value}
                   onClick={() => setSelectedAspectRatio(ratio.value)}
                 >
-                  <AspectRatioPreview ratio={ratio.value} />
+                  {/* <AspectRatioPreview ratio={ratio.value} /> */}
                   <AspectRatioLabel
                     isSelected={selectedAspectRatio === ratio.value}
                   >
@@ -599,7 +911,7 @@ const Generate = () => {
           </AspectRatioSection>
 
           <GenerateButtonSection>
-            <GenerateButton onClick={generateImage} disabled={!canGenerate}>
+            <GenerateButton onClick={generateImage} disabled={!canGenerate()}>
               {isGenerating && <LoadingSpinner />}
               {isGenerating ? "Generating..." : "Generate Image"}
             </GenerateButton>

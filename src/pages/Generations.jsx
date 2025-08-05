@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import MasonryLayout from "components/MasonryLayout";
+import Toast, { useToast } from "components/Toast";
+import ConfirmDialog from "components/ConfirmDialog";
 
 const GenerationsContainer = styled.div`
   width: 100%;
@@ -133,6 +135,12 @@ const Generations = () => {
   const [generations, setGenerations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState({
+    isOpen: false,
+    item: null,
+  });
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { toasts, removeToast, showSuccess, showError } = useToast();
 
   const fetchGenerations = async () => {
     try {
@@ -190,6 +198,46 @@ const Generations = () => {
     } catch (error) {
       console.error("Error downloading image:", error);
     }
+  };
+
+  const handleImageDelete = (item) => {
+    setDeleteDialog({ isOpen: true, item });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteDialog.item) return;
+
+    try {
+      setIsDeleting(true);
+
+      const response = await fetch(
+        `https://fastapi-app-production-6492.up.railway.app/api/v1/delete/${deleteDialog.item._id}`,
+        {
+          method: "GET",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Remove the deleted item from the local state
+      setGenerations((prevGenerations) =>
+        prevGenerations.filter((gen) => gen._id !== deleteDialog.item._id)
+      );
+
+      showSuccess("Image deleted successfully!");
+      setDeleteDialog({ isOpen: false, item: null });
+    } catch (error) {
+      console.error("Error deleting generation:", error);
+      showError("Failed to delete image. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteDialog({ isOpen: false, item: null });
   };
 
   const getTimeStats = () => {
@@ -267,8 +315,22 @@ const Generations = () => {
         loading={loading}
         onView={handleImageView}
         onDownload={handleImageDownload}
+        onDelete={handleImageDelete}
         loadingCount={8}
       />
+
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        loading={isDeleting}
+        title="Delete Image"
+        message="Are you sure you want to delete this image? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
+
+      <Toast toasts={toasts} removeToast={removeToast} />
     </GenerationsContainer>
   );
 };

@@ -1,5 +1,7 @@
 import { useState, useRef } from "react";
 import styled from "styled-components";
+import moment from "moment";
+import { Download, Eye, Trash2 } from "lucide-react";
 
 const MasonryContainer = styled.div`
   display: grid;
@@ -78,6 +80,7 @@ const ActionButtons = styled.div`
   gap: 0.5rem;
   opacity: 0;
   transition: opacity 0.3s ease;
+  z-index: 10;
 
   ${MasonryItem}:hover & {
     opacity: 1;
@@ -140,22 +143,12 @@ const MasonryLayout = ({
   loading = false,
   onDownload,
   onView,
+  onDelete,
   loadingCount = 6,
 }) => {
   const [imageHeights, setImageHeights] = useState({}); // eslint-disable-line
   const [imageErrors, setImageErrors] = useState({});
   const imageRefs = useRef({});
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const handleImageLoad = (index, event) => {
     const img = event.target;
@@ -207,6 +200,12 @@ const MasonryLayout = ({
     }
   };
 
+  const handleDelete = (item, index) => {
+    if (onDelete) {
+      onDelete(item, index);
+    }
+  };
+
   if (loading) {
     return (
       <MasonryContainer>
@@ -248,8 +247,11 @@ const MasonryLayout = ({
                   handleDownload(item.output_url, index);
                 }}
                 title="Download"
+                style={{
+                  cursor: "pointer",
+                }}
               >
-                📥
+                <Download size={18} style={{ pointerEvents: "none" }} />
               </ActionButton>
               <ActionButton
                 onClick={(e) => {
@@ -257,14 +259,35 @@ const MasonryLayout = ({
                   handleView(item, index);
                 }}
                 title="View"
+                style={{
+                  cursor: "pointer",
+                }}
               >
-                👁️
+                <Eye size={18} style={{ pointerEvents: "none" }} />
               </ActionButton>
+              {onDelete && (
+                <ActionButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(item, index);
+                  }}
+                  title="Delete"
+                  style={{
+                    background: "rgba(255, 71, 87, 0.9)",
+                    color: "white",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Trash2 size={18} style={{ pointerEvents: "none" }} />
+                </ActionButton>
+              )}
             </ActionButtons>
 
             <ImageOverlay>
               <ImageInfo>
-                <ImageDate>{formatDate(item.created_at)}</ImageDate>
+                <ImageDate>
+                  {moment(item.created_at).format("MMM DD YY")}
+                </ImageDate>
               </ImageInfo>
             </ImageOverlay>
           </MasonryItem>

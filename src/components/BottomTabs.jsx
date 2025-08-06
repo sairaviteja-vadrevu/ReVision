@@ -1,13 +1,14 @@
 import { TABS } from "data/common";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { useTheme } from "contexts/ThemeContext";
 
 const BottomTabsWrapper = styled.div`
   width: 100%;
   max-width: 48rem;
   padding: 1rem;
   height: auto;
-  background: linear-gradient(135deg, #111 0%, #445069 100%);
+  background: ${props => props.$gradient};
   color: white;
   display: flex;
   align-items: center;
@@ -17,7 +18,7 @@ const BottomTabsWrapper = styled.div`
   bottom: 0;
   z-index: 1000;
   box-sizing: border-box;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
   border-radius: 5rem 5rem 0 0;
 `;
 
@@ -41,20 +42,23 @@ const TabItem = styled.div`
 
 const BottomTabs = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  
   return (
-    <BottomTabsWrapper>
+    <BottomTabsWrapper $gradient={theme.gradient}>
       {TABS?.map((tab, index) => {
+        const isActive = window.location.pathname === tab.path;
         return (
           <TabItem
             key={index}
             onClick={() => navigate(tab.path)}
-            selected={window.location.pathname === tab.path}
+            selected={isActive}
           >
             <tab.icon
               style={{
                 fontSize: "2rem",
-                color: window.location.pathname === tab.path ? "#fff" : "#ccc",
-                opacity: window.location.pathname === tab.path ? 1 : 0.7,
+                color: isActive ? "#fff" : "#ccc",
+                opacity: isActive ? 1 : 0.7,
                 transition: "color 0.3s ease, opacity 0.3s ease",
               }}
             />

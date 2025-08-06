@@ -13,7 +13,7 @@ const Overlay = styled.div`
   justify-content: center;
   z-index: 2000;
   animation: fadeIn 0.2s ease-out;
-  
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -29,10 +29,10 @@ const Dialog = styled.div`
   border-radius: 1.2rem;
   padding: 2.4rem;
   max-width: 42rem;
-  width: 90%;
+  width: 80%;
   box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.2);
   animation: slideUp 0.3s ease-out;
-  
+
   @keyframes slideUp {
     from {
       transform: translateY(2rem);
@@ -94,7 +94,7 @@ const Button = styled.button`
 const CancelButton = styled(Button)`
   background: #f3f4f6;
   color: #374151;
-  
+
   &:hover {
     background: #e5e7eb;
   }
@@ -103,26 +103,26 @@ const CancelButton = styled(Button)`
 const ConfirmButton = styled(Button)`
   background: #ef4444;
   color: white;
-  
+
   &:hover {
     background: #dc2626;
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
 `;
 
-const ConfirmDialog = ({ 
-  isOpen, 
-  onClose, 
-  onConfirm, 
+const ConfirmDialog = ({
+  isOpen,
+  onClose,
+  onConfirm,
   title = "Confirm Action",
   message = "Are you sure you want to proceed?",
   confirmText = "Confirm",
   cancelText = "Cancel",
-  loading = false 
+  loading = false,
 }) => {
   if (!isOpen) return null;
 

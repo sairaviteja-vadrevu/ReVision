@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { TEMPLATES } from "data/common";
+import { useTheme } from "contexts/ThemeContext";
 
 const HomeContainer = styled.div`
   width: 100%;
@@ -23,7 +24,7 @@ const TemplateContainer = styled.div`
 
 const TemplateHeader = styled.h2`
   font-size: 2rem;
-  background: linear-gradient(135deg, #111, #445069);
+  background: ${props => props.$gradient};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -99,11 +100,11 @@ const TemplateImageSkeleton = styled.div`
 const TemplateInitials = styled.div`
   font-size: 3rem;
   font-weight: 700;
-  color: #445069;
+  color: ${props => props.$color};
   text-transform: uppercase;
   letter-spacing: 0.2rem;
   z-index: 1;
-  background: linear-gradient(135deg, #111, #445069);
+  background: ${props => props.$gradient};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -122,7 +123,7 @@ const TemplateThemeHeader = styled.h5`
   font-weight: 400;
   white-space: nowrap;
   padding: 1rem;
-  background: linear-gradient(135deg, #111, #445069);
+  background: ${props => props.$gradient};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -130,7 +131,7 @@ const TemplateThemeHeader = styled.h5`
 
 const GuideBanner = styled.div`
   padding: 1rem;
-  background: linear-gradient(135deg, #111 0%, #445069 100%);
+  background: ${props => props.$gradient};
   border-radius: 1.2rem;
   box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.15);
   color: white;
@@ -154,8 +155,55 @@ const BannerSubtitle = styled.p`
   line-height: 1.5;
 `;
 
+const CustomPromptSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 2rem 0;
+`;
+
+const CustomPromptCard = styled.div`
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px dashed ${props => props.$color};
+  border-radius: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+
+  &:hover {
+    border-color: ${props => props.$primary};
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+`;
+
+const CustomPromptIcon = styled.div`
+  font-size: 3rem;
+  margin-bottom: 1rem;
+`;
+
+const CustomPromptTitle = styled.h3`
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  background: ${props => props.$gradient};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`;
+
+const CustomPromptDescription = styled.p`
+  font-size: 1.4rem;
+  color: #666;
+  opacity: 0.8;
+  line-height: 1.5;
+`;
+
 const Home = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   const getInitials = (name) => {
     if (!name) return "T";
@@ -178,20 +226,41 @@ const Home = () => {
     );
   };
 
+  const handleCustomPromptClick = () => {
+    navigate("/custom", {
+      state: { mode: "custom" },
+    });
+  };
+
   return (
     <HomeContainer>
-      <GuideBanner>
-        <BannerTitle>Choose Your Perfect Template</BannerTitle>
+      <GuideBanner $gradient={theme.gradient}>
+        <BannerTitle>Create Amazing AI Art</BannerTitle>
         <BannerSubtitle>
-          Select one of our beautiful themes below to generate stunning images
-          with AI
+          Choose from our beautiful templates or create your own custom prompts
         </BannerSubtitle>
       </GuideBanner>
+
+      <CustomPromptSection>
+        <TemplateHeader $gradient={theme.gradient}>Custom Creation</TemplateHeader>
+        <CustomPromptCard 
+          onClick={handleCustomPromptClick}
+          $color={theme.color}
+          $primary={theme.primary}
+        >
+          <CustomPromptIcon>✨</CustomPromptIcon>
+          <CustomPromptTitle $gradient={theme.gradient}>Custom Prompt</CustomPromptTitle>
+          <CustomPromptDescription>
+            Write your own prompt and generate unique images with or without
+            reference photos
+          </CustomPromptDescription>
+        </CustomPromptCard>
+      </CustomPromptSection>
 
       {Object.keys(TEMPLATES).map((key) => {
         return (
           <TemplateContainer key={key}>
-            <TemplateHeader>{key}</TemplateHeader>
+            <TemplateHeader $gradient={theme.gradient}>{key}</TemplateHeader>
             <TemplatesSection>
               {TEMPLATES[key].map((template, index) => {
                 return (
@@ -203,12 +272,17 @@ const Home = () => {
                       {template?.logo ? (
                         <TemplateLogo src={template.logo} alt={template.name} />
                       ) : (
-                        <TemplateInitials>
+                        <TemplateInitials 
+                          $color={theme.color}
+                          $gradient={theme.gradient}
+                        >
                           {getInitials(template?.name)}
                         </TemplateInitials>
                       )}
                     </TemplateImageSkeleton>
-                    <TemplateThemeHeader>{template?.name}</TemplateThemeHeader>
+                    <TemplateThemeHeader $gradient={theme.gradient}>
+                      {template?.name}
+                    </TemplateThemeHeader>
                   </TemplateItem>
                 );
               })}

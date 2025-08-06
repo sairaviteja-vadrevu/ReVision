@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { BrowserRouter as Router } from "react-router";
 import AuthProvider from "contexts/Auth";
+import { ThemeProvider } from "contexts/ThemeContext";
 import ReVisionLogo from "assets/ReVision.gif";
 import AppRoutes from "./Routes";
 import AppLayout from "./AppLayout";
@@ -50,12 +51,14 @@ const App = () => {
 
   return (
     <Router>
-      <AuthProvider>
-        <AppLayout>
-          <AppRoutes />
-        </AppLayout>
-        <PWAInstaller />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppLayout>
+            <AppRoutes />
+          </AppLayout>
+          <PWAInstaller />
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   );
 };

@@ -155,7 +155,7 @@ export const TEMPLATES = {
     {
       name: "Vaporwave",
       prompt:
-        "Place this person in a retro vaporwave aesthetic with grids, neon lights, and statues. Keep facial identity 1:1 with the uploaded image. Stylize only colors and vibe.",
+        "Create a retro vaporwave aesthetic image featuring this exact person. CRITICAL FACIAL REQUIREMENTS: The face must be an exact 1:1 photorealistic replica - same eye shape, nose bridge, lip curves, jawline, cheekbone structure, skin texture, facial hair, wrinkles, and micro-expressions. Preserve every facial detail including: eye color and iris patterns, nostril shape, ear structure, chin dimples, smile lines, and natural asymmetries. DO NOT alter, stylize, or interpret the face in any way. STYLE APPLICATION: Apply vaporwave elements only to background (neon grids, geometric shapes, retro computers), clothing (80s fashion, chrome accessories), and lighting (pink/cyan neon glow, sunset gradients). Environment: retro-futuristic cityscape with palm trees, classical statues, and wireframe mountains. Maintain the person's exact head angle, gaze direction, and facial expression. Ultra-high resolution, photorealistic face rendering.",
       logo: VaporwaveLogo,
     },
     {
